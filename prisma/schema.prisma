@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Users {
+  UserID         Int      @id @default(autoincrement())
+  role           Role     @default(USER)
+  firstName      String   @db.VarChar(25)
+  lastName       String   @db.VarChar(25)
+  Email          String   @unique
+  password       String   @db.VarChar(100)
+  Phone          String   @unique @db.VarChar(15) 
+  address        String?   @db.VarChar(255)
+  identityImage  String?   @db.VarChar(255) // иргэний үнэмлэхний зураг
+  licenseImage   String?   @db.VarChar(255) // жолооны үнэмлэхний зураг
+  rentals        Rental[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+
+model CarImages {
+  id     Int    @id @default(autoincrement())
+  carID  Int
+  image  String @db.VarChar(255) 
+  car    Cars   @relation(fields: [carID], references: [carID], onDelete: Cascade)
+}
+
+model Cars {
+  carID        Int      @id @default(autoincrement())
+  brandName    String    
+  modelName    String 
+  brand        Brand    @relation(fields: [brandName], references: [brandName])
+  model        Model    @relation(fields: [modelName], references: [modelName])
+  price        Int
+  color        String
+  type         String   // optional only Manual/Automatic
+  seats        Int
+  engine       String
+  roadLimit    Int
+  fuelCapacity Int      
+  rentals      Rental[] 
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  images       CarImages[] 
+}
+
+
+model Brand {
+  brandID   Int     @id @default(autoincrement())
+  brandName String  @unique
+  models    Model[] 
+  cars      Cars[] 
+}
+
+model Model {
+  modelID   Int     @id @default(autoincrement())
+  modelName String  @unique
+  brandName String  
+  brand     Brand   @relation(fields: [brandName], references: [brandName])
+  cars      Cars[] 
+}
+
+
+model Rental {
+  rentalID       Int      @id @default(autoincrement())
+  userID         Int
+  carID          Int
+  transactionID  Int?
+  startDate      DateTime
+  endDate        DateTime
+  paymentStatus  String   // pending/completed/cancelled
+  totalCost      Int
+  user          Users       @relation(fields: [userID], references: [UserID])
+  car           Cars        @relation(fields: [carID], references: [carID])
+  transaction Transaction?
+}
+model Transaction {
+  transactionID  Int     @id @default(autoincrement())
+  rentalID       Int     @unique
+  amount         Int
+  paymentMethod  String // Card/QPay/Cash
+  rental         Rental  @relation(fields: [rentalID], references: [rentalID])
+}
