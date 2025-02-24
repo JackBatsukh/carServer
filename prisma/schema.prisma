@@ -19,13 +19,13 @@ enum Role {
 }
 
 model Users {
-  UserID         Int      @id @default(autoincrement())
+  userID         Int      @id @default(autoincrement())
   role           Role     @default(USER)
   firstName      String   @db.VarChar(25)
   lastName       String   @db.VarChar(25)
-  Email          String   @unique
+  email          String   @unique
   password       String   @db.VarChar(100)
-  Phone          String   @unique @db.VarChar(15) 
+  phone          String   @unique @db.VarChar(15) 
   address        String?   @db.VarChar(255)
   identityImage  String?   @db.VarChar(255) // иргэний үнэмлэхний зураг
   licenseImage   String?   @db.VarChar(255) // жолооны үнэмлэхний зураг
@@ -47,7 +47,6 @@ model Cars {
   brandName    String    
   modelName    String 
   brand        Brand    @relation(fields: [brandName], references: [brandName])
-  model        Model    @relation(fields: [modelName], references: [modelName])
   price        Int
   color        String
   type         String   // optional only Manual/Automatic
@@ -65,17 +64,10 @@ model Cars {
 model Brand {
   brandID   Int     @id @default(autoincrement())
   brandName String  @unique
-  models    Model[] 
   cars      Cars[] 
 }
 
-model Model {
-  modelID   Int     @id @default(autoincrement())
-  modelName String  @unique
-  brandName String  
-  brand     Brand   @relation(fields: [brandName], references: [brandName])
-  cars      Cars[] 
-}
+
 
 
 model Rental {
@@ -87,7 +79,7 @@ model Rental {
   endDate        DateTime
   paymentStatus  String   // pending/completed/cancelled
   totalCost      Int
-  user          Users       @relation(fields: [userID], references: [UserID])
+  user          Users       @relation(fields: [userID], references: [userID])
   car           Cars        @relation(fields: [carID], references: [carID])
   transaction Transaction?
 }

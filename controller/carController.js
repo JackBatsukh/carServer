@@ -12,7 +12,7 @@ exports.createCar = async (req, res) => {
     engine,
     roadLimit,
     fuelCapacity,
-    images,
+    // images,
   } = req.body;
   try {
     const car = await prisma.cars.create({
@@ -26,9 +26,9 @@ exports.createCar = async (req, res) => {
         engine,
         roadLimit: parseInt(roadLimit),
         fuelCapacity: parseInt(fuelCapacity),
-        images: {
-          create: images.map((image) => ({ image: image.filename })),
-        },
+        // images: {
+        //   create: images.map((image) => ({ image: image.filename })),
+        // },
       },
       include: { images: true },
     });

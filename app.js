@@ -13,14 +13,17 @@ require("dotenv").config();
 
 const cors = require("cors");
 //buh domain-d API-g cors ashiglan neelttei bolgoj bn
-app.use(
-  cors({
-    origin: ["http://localhost:3306"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: ["http://localhost:3306"],
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//     credentials: true,
+//   })
+// );
+
+app.use(cors());
+
 app.use("/files", express.static("file"));
 app.use("/carImage", express.static("file/carImages"));
 app.use("/user", userRouter);

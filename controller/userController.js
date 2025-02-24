@@ -3,9 +3,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 exports.signUp = async (req, res) => {
-  const { firstName, lastName, Phone, Email, password } = req.body;
+  const { firstName, lastName, phone, email, password } = req.body;
   try {
-    const existingUser = await prisma.users.findUnique({ where: { Email } });
+    const existingUser = await prisma.users.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ message: "Хэрэглэгч бүртгэлтэй байна." });
     }
@@ -16,11 +16,10 @@ exports.signUp = async (req, res) => {
       data: {
         firstName: firstName,
         lastName: lastName,
-        Phone: Phone,
-        Email: Email,
+        phone: phone,
+        email: email,
         password: hashedPassword,
       },
-      users,
     });
     return res.status(201).json({ message: "Амжилттай бүртгэгдлээ!" });
   } catch (error) {
@@ -30,9 +29,9 @@ exports.signUp = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  const { Email, password } = req.body;
+  const { email, password } = req.body;
   try {
-    const users = await prisma.users.findUnique({ where: { Email } });
+    const users = await prisma.users.findUnique({ where: { email } });
     if (!users) {
       return res
         .status(401)
@@ -42,7 +41,7 @@ exports.login = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: "Нууц үг буруу байна!" });
     }
-    const token = jwt.sign({ UserID: users.UserID }, process.env.JWT_token, {
+    const token = jwt.sign({ UserID: users.userID }, process.env.JWT_token, {
       expiresIn: "5h",
     });
     return res.status(200).json({ message: "Амжилттай нэвтэрлээ", token });
@@ -54,7 +53,7 @@ exports.login = async (req, res) => {
 
 exports.edit = async (req, res) => {
   try {
-    const { address, firstName, lastName, Email, Phone, password } = req.body;
+    const { address, firstName, lastName, email, phone, password } = req.body;
     const files = req.files;
 
     const identityImage = files.identityImage?.[0]?.filename;
@@ -63,8 +62,8 @@ exports.edit = async (req, res) => {
     const updateData = {
       firstName,
       lastName,
-      Email,
-      Phone,
+      email,
+      phone,
       password,
       address: address || undefined,
       identityImage: identityImage || undefined,
@@ -76,7 +75,7 @@ exports.edit = async (req, res) => {
     );
 
     const updatedUser = await prisma.users.update({
-      where: { UserID: req.user.UserID },
+      where: { userID: req.user.userID },
       data: updateData,
     });
 
@@ -91,11 +90,26 @@ exports.userDelete = async (req, res) => {
   const { id } = req.params;
   try {
     await prisma.users.delete({
-      where: { UserID: parseInt(id) },
+      where: { userID: parseInt(id) },
     });
     res.status(200).json({ message: "Хэрэглэгч bye bye Гагарин боллоо." });
   } catch (error) {
     console.error(error);
     res.status(400).json({ message: "Алдаа гарлаа", error });
+  }
+};
+
+exports.allUsers = async (req, res) => {
+  try {
+    const user = await prisma.users.findMany();
+    res.status(200).json({
+      message: "Амжилттай авчирлаа",
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      message: "Алдаа гарлаа",
+    });
   }
 };
